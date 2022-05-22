@@ -1,4 +1,4 @@
-FROM golang:1.13 AS build-dist
+FROM golang:1.17 AS build-dist
 ENV GOPROXY='https://mirrors.aliyun.com/goproxy'
 WORKDIR /data/release
 COPY . .

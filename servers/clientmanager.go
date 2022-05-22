@@ -1,9 +1,9 @@
 package servers
 
 import (
-	"encoding/json"
 	"errors"
 	log "github.com/sirupsen/logrus"
+	. "github.com/woodylan/go-websocket/config"
 	"github.com/woodylan/go-websocket/define/retcode"
 	"github.com/woodylan/go-websocket/pkg/setting"
 	"github.com/woodylan/go-websocket/tools/util"
@@ -42,9 +42,9 @@ func NewClientManager() (clientManager *ClientManager) {
 func (manager *ClientManager) Start() {
 	for {
 		select {
-		case client := <-manager.Connect:
-			// 建立连接事件
-			manager.EventConnect(client)
+		//case client := <-manager.Connect:
+		// 建立连接事件
+		//manager.EventConnect(client)
 		case conn := <-manager.DisConnect:
 			// 断开连接事件
 			manager.EventDisconnect(conn)
@@ -70,19 +70,19 @@ func (manager *ClientManager) EventDisconnect(client *Client) {
 	_ = client.Socket.Close()
 	manager.DelClient(client)
 
-	mJson, _ := json.Marshal(map[string]string{
-		"clientId": client.ClientId,
-		"userId":   client.UserId,
-		"extend":   client.Extend,
-	})
-	data := string(mJson)
-	sendUserId := ""
+	//mJson, _ := json.Marshal(map[string]string{
+	//	"clientId": client.ClientId,
+	//	"userId":   client.UserId,
+	//	"extend":   client.Extend,
+	//})
+	//data := string(mJson)
+	//sendUserId := ""
 
 	//发送下线通知
 	if len(client.GroupList) > 0 {
-		for _, groupName := range client.GroupList {
-			SendMessage2Group(client.SystemId, sendUserId, groupName, retcode.OFFLINE_MESSAGE_CODE, "客户端下线", &data)
-		}
+		//for _, groupName := range client.GroupList {
+		//SendMessage2Group(client.SystemId, sendUserId, groupName, retcode.OFFLINE_MESSAGE_CODE, "客户端下线", &data)
+		//}
 	}
 
 	log.WithFields(log.Fields{
@@ -102,8 +102,9 @@ func (manager *ClientManager) EventDisconnect(client *Client) {
 func (manager *ClientManager) AddClient(client *Client) {
 	manager.ClientIdMapLock.Lock()
 	defer manager.ClientIdMapLock.Unlock()
-
+	//log.Printf("添加客户连接前%v,ClientId--%v", manager.ClientIdMap, client.ClientId)
 	manager.ClientIdMap[client.ClientId] = client
+	//log.Printf("添加客户连接后%v,ClientId--%v", manager.ClientIdMap, client.ClientId)
 }
 
 // 获取所有的客户端
@@ -148,8 +149,10 @@ func (manager *ClientManager) delClientIdMap(clientId string) {
 func (manager *ClientManager) GetByClientId(clientId string) (*Client, error) {
 	manager.ClientIdMapLock.RLock()
 	defer manager.ClientIdMapLock.RUnlock()
+	//log.Printf("所有连接--%v,目前clientId--%v", manager.ClientIdMap, clientId)
 
 	if client, ok := manager.ClientIdMap[clientId]; !ok {
+		log.Printf("通过clientId获取 出问题了么？%v\n", ok)
 		return nil, errors.New("客户端不存在")
 	} else {
 		return client, nil
@@ -157,7 +160,7 @@ func (manager *ClientManager) GetByClientId(clientId string) (*Client, error) {
 }
 
 // 发送到本机分组
-func (manager *ClientManager) SendMessage2LocalGroup(systemId, messageId, sendUserId, groupName string, code int, msg string, data *string) {
+func (manager *ClientManager) SendMessage2LocalGroup(systemId, messageId, sendUserId, groupName string, code int, msg string, data interface{}) {
 	if len(groupName) > 0 {
 		clientIds := manager.GetGroupClientList(util.GenGroupKey(systemId, groupName))
 		if len(clientIds) > 0 {
@@ -195,27 +198,38 @@ func (manager *ClientManager) AddClient2LocalGroup(groupName string, client *Cli
 	//判断之前是否有添加过
 	for _, groupValue := range client.GroupList {
 		if groupValue == groupName {
+			log.Printf("判断之前是否有添加过。。。。")
 			return
 		}
 	}
 
 	// 为属性添加分组信息
 	groupKey := util.GenGroupKey(client.SystemId, groupName)
-
+	//检查是超群组上限
+	cCount := manager.Count()
+	if cCount > ViperConfig.App.OnLine {
+		//当前用户下线，发送消息
+		SendMessage2Client(client.ClientId, userId, retcode.OFFLINE_MESSAGE_CODE, "聊天室已达上线", "")
+		time.Sleep(2 * time.Second)
+		CloseClient(client.ClientId, client.SystemId)
+		return
+	}
 	manager.addClient2Group(groupKey, client)
 
 	client.GroupList = append(client.GroupList, groupName)
-
-	mJson, _ := json.Marshal(map[string]string{
-		"clientId": client.ClientId,
-		"userId":   client.UserId,
-		"extend":   client.Extend,
-	})
-	data := string(mJson)
-	sendUserId := ""
+	//log.Printf("群组列表client.GroupList%v\n", client.GroupList)
+	//mJson, _ := json.Marshal(map[string]string{
+	//	"clientId": client.ClientId,
+	//	"userId":   client.UserId,
+	//	"extend":   client.Extend,
+	//})
+	//data := string(mJson)
+	//sendUserId := ""
 
 	//发送系统通知
-	SendMessage2Group(client.SystemId, sendUserId, groupName, retcode.ONLINE_MESSAGE_CODE, "客户端上线", &data)
+	//SendMessage2Group(client.SystemId, sendUserId, groupName, retcode.ONLINE_MESSAGE_CODE, "", &data)
+	//发送首页数据
+	SendListMsgToClient(manager, client.ClientId, userId, groupName)
 }
 
 // 添加到本地分组
@@ -223,6 +237,7 @@ func (manager *ClientManager) addClient2Group(groupKey string, client *Client) {
 	manager.GroupLock.Lock()
 	defer manager.GroupLock.Unlock()
 	manager.Groups[groupKey] = append(manager.Groups[groupKey], client.ClientId)
+	//log.Printf("本地群组client.GroupList%v\n", manager.Groups)
 }
 
 // 删除分组里的客户端

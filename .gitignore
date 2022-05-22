@@ -2,3 +2,7 @@ go-websocket
 error.log
 log.log
 log
+config.json
+.git
+.idea
+.DS_Store

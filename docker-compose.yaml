@@ -5,8 +5,8 @@ services:
     container_name: ws_etcd1
     command: etcd -name ws_etcd1 -advertise-client-urls http://0.0.0.0:2379 -listen-client-urls http://0.0.0.0:2379 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster "ws_etcd1=http://ws_etcd1:2380,ws_etcd2=http://ws_etcd2:2380,ws_etcd3=http://ws_etcd3:2380" -initial-cluster-state new
     ports:
-      - "23791:2379"
-      - "23801:2380"
+      - "12379:2379"
+      - "12380:2380"
     networks:
       - ws-net
 
@@ -15,8 +15,8 @@ services:
     container_name: ws_etcd2
     command: etcd -name ws_etcd2 -advertise-client-urls http://0.0.0.0:2379 -listen-client-urls http://0.0.0.0:2379 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster "ws_etcd1=http://ws_etcd1:2380,ws_etcd2=http://ws_etcd2:2380,ws_etcd3=http://ws_etcd3:2380" -initial-cluster-state new
     ports:
-      - "23792:2379"
-      - "23802:2380"
+      - "22379:2379"
+      - "22380:2380"
     networks:
       - ws-net
 
@@ -25,8 +25,8 @@ services:
     container_name: ws_etcd3
     command: etcd -name ws_etcd3 -advertise-client-urls http://0.0.0.0:2379 -listen-client-urls http://0.0.0.0:2379 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster -initial-cluster "ws_etcd1=http://ws_etcd1:2380,ws_etcd2=http://ws_etcd2:2380,ws_etcd3=http://ws_etcd3:2380" -initial-cluster-state new
     ports:
-      - "23793:2379"
-      - "23803:2380"
+      - "32379:2379"
+      - "32380:2380"
     networks:
       - ws-net
 

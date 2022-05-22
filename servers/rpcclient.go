@@ -17,7 +17,7 @@ func grpcConn(addr string) *grpc.ClientConn {
 	return conn
 }
 
-func SendRpc2Client(addr string, messageId, sendUserId, clientId string, code int, message string, data *string) {
+func SendRpc2Client(addr string, messageId, sendUserId, clientId string, code int, message string, data interface{}) {
 	conn := grpcConn(addr)
 	defer conn.Close()
 
@@ -36,7 +36,7 @@ func SendRpc2Client(addr string, messageId, sendUserId, clientId string, code in
 		ClientId:   clientId,
 		Code:       int32(code),
 		Message:    message,
-		Data:       *data,
+		Data:       data,
 	})
 	if err != nil {
 		log.Errorf("failed to call: %v", err)
@@ -83,7 +83,7 @@ func SendRpcBindGroup(addr string, systemId string, groupName string, clientId s
 }
 
 //发送分组消息
-func SendGroupBroadcast(systemId string, messageId, sendUserId, groupName string, code int, message string, data *string) {
+func SendGroupBroadcast(systemId string, messageId, sendUserId, groupName string, code int, message string, data interface{}) {
 	setting.GlobalSetting.ServerListLock.Lock()
 	defer setting.GlobalSetting.ServerListLock.Unlock()
 	for _, addr := range setting.GlobalSetting.ServerList {
@@ -98,7 +98,7 @@ func SendGroupBroadcast(systemId string, messageId, sendUserId, groupName string
 			GroupName:  groupName,
 			Code:       int32(code),
 			Message:    message,
-			Data:       *data,
+			Data:       data,
 		})
 		if err != nil {
 			log.Errorf("failed to call: %v", err)

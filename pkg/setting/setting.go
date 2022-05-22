@@ -9,10 +9,12 @@ import (
 )
 
 type commonConf struct {
-	HttpPort  string
-	RPCPort   string
-	Cluster   bool
-	CryptoKey string
+	HttpPort   string
+	RPCPort    string
+	Cluster    bool
+	CryptoKey  string
+	SystemId   string
+	ChatroomId string
 }
 
 var CommonSetting = &commonConf{}
@@ -53,10 +55,12 @@ func Setup() {
 
 func Default() {
 	CommonSetting = &commonConf{
-		HttpPort:  "6000",
-		RPCPort:   "7000",
-		Cluster:   false,
-		CryptoKey: "Adba723b7fe06819",
+		HttpPort:   "6000",
+		RPCPort:    "7000",
+		Cluster:    false,
+		CryptoKey:  "Adba723b7fe06819",
+		SystemId:   "99",
+		ChatroomId: "1",
 	}
 
 	GlobalSetting = &global{

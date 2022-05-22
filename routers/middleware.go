@@ -20,8 +20,8 @@ func AccessTokenMiddleware(next http.HandlerFunc) http.HandlerFunc {
 		//检查header是否设置SystemId
 		systemId := r.Header.Get("SystemId")
 		if len(systemId) == 0 {
-			api.Render(w, retcode.FAIL, "系统ID不能为空", []string{})
-			return
+			//api.Render(w, retcode.FAIL, "系统ID不能为空", []string{})
+			//return
 		}
 
 		//判断是否被注册
@@ -38,8 +38,8 @@ func AccessTokenMiddleware(next http.HandlerFunc) http.HandlerFunc {
 			}
 		} else {
 			if _, ok := servers.SystemMap.Load(systemId); !ok {
-				api.Render(w, retcode.FAIL, "系统ID无效", []string{})
-				return
+				//api.Render(w, retcode.FAIL, "系统ID无效", []string{})
+				//return
 			}
 		}
 

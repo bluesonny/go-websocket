@@ -31,8 +31,11 @@ func main() {
 	//启动一个定时器用来发送心跳
 	servers.PingTimer()
 
-	fmt.Printf("服务器启动成功，端口号：%s\n", setting.CommonSetting.HttpPort)
+	//新建默认系统id
+	servers.Register(setting.CommonSetting.SystemId)
 
+	fmt.Printf("服务器启动成功，端口号：%s\n", setting.CommonSetting.HttpPort)
+	go servers.RedisSend()
 	if err := http.ListenAndServe(":"+setting.CommonSetting.HttpPort, nil); err != nil {
 		panic(err)
 	}

@@ -23,16 +23,16 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type Send2ClientReq struct {
-	SystemId             string   `protobuf:"bytes,1,opt,name=systemId,proto3" json:"systemId,omitempty"`
-	MessageId            string   `protobuf:"bytes,2,opt,name=messageId,proto3" json:"messageId,omitempty"`
-	SendUserId           string   `protobuf:"bytes,3,opt,name=sendUserId,proto3" json:"sendUserId,omitempty"`
-	ClientId             string   `protobuf:"bytes,4,opt,name=clientId,proto3" json:"clientId,omitempty"`
-	Code                 int32    `protobuf:"varint,5,opt,name=code,proto3" json:"code,omitempty"`
-	Message              string   `protobuf:"bytes,6,opt,name=message,proto3" json:"message,omitempty"`
-	Data                 string   `protobuf:"bytes,7,opt,name=data,proto3" json:"data,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	SystemId             string      `protobuf:"bytes,1,opt,name=systemId,proto3" json:"systemId,omitempty"`
+	MessageId            string      `protobuf:"bytes,2,opt,name=messageId,proto3" json:"messageId,omitempty"`
+	SendUserId           string      `protobuf:"bytes,3,opt,name=sendUserId,proto3" json:"sendUserId,omitempty"`
+	ClientId             string      `protobuf:"bytes,4,opt,name=clientId,proto3" json:"clientId,omitempty"`
+	Code                 int32       `protobuf:"varint,5,opt,name=code,proto3" json:"code,omitempty"`
+	Message              string      `protobuf:"bytes,6,opt,name=message,proto3" json:"message,omitempty"`
+	Data                 interface{} `protobuf:"bytes,7,opt,name=data,proto3" json:"data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_unrecognized     []byte      `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
 func (m *Send2ClientReq) Reset()         { *m = Send2ClientReq{} }
@@ -102,7 +102,7 @@ func (m *Send2ClientReq) GetMessage() string {
 	return ""
 }
 
-func (m *Send2ClientReq) GetData() string {
+func (m *Send2ClientReq) GetData() interface{} {
 	if m != nil {
 		return m.Data
 	}
@@ -228,16 +228,16 @@ func (m *BindGroupReq) GetExtend() string {
 }
 
 type Send2GroupReq struct {
-	SystemId             string   `protobuf:"bytes,1,opt,name=systemId,proto3" json:"systemId,omitempty"`
-	MessageId            string   `protobuf:"bytes,2,opt,name=messageId,proto3" json:"messageId,omitempty"`
-	SendUserId           string   `protobuf:"bytes,3,opt,name=sendUserId,proto3" json:"sendUserId,omitempty"`
-	GroupName            string   `protobuf:"bytes,4,opt,name=groupName,proto3" json:"groupName,omitempty"`
-	Code                 int32    `protobuf:"varint,5,opt,name=code,proto3" json:"code,omitempty"`
-	Message              string   `protobuf:"bytes,6,opt,name=message,proto3" json:"message,omitempty"`
-	Data                 string   `protobuf:"bytes,7,opt,name=data,proto3" json:"data,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
+	SystemId             string      `protobuf:"bytes,1,opt,name=systemId,proto3" json:"systemId,omitempty"`
+	MessageId            string      `protobuf:"bytes,2,opt,name=messageId,proto3" json:"messageId,omitempty"`
+	SendUserId           string      `protobuf:"bytes,3,opt,name=sendUserId,proto3" json:"sendUserId,omitempty"`
+	GroupName            string      `protobuf:"bytes,4,opt,name=groupName,proto3" json:"groupName,omitempty"`
+	Code                 int32       `protobuf:"varint,5,opt,name=code,proto3" json:"code,omitempty"`
+	Message              string      `protobuf:"bytes,6,opt,name=message,proto3" json:"message,omitempty"`
+	Data                 interface{} `protobuf:"bytes,7,opt,name=data,proto3" json:"data,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
+	XXX_unrecognized     []byte      `json:"-"`
+	XXX_sizecache        int32       `json:"-"`
 }
 
 func (m *Send2GroupReq) Reset()         { *m = Send2GroupReq{} }
@@ -307,7 +307,7 @@ func (m *Send2GroupReq) GetMessage() string {
 	return ""
 }
 
-func (m *Send2GroupReq) GetData() string {
+func (m *Send2GroupReq) GetData() interface{} {
 	if m != nil {
 		return m.Data
 	}
