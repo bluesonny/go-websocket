@@ -42,7 +42,7 @@ func (c *Controller) Run(w http.ResponseWriter, r *http.Request) {
 
 	//解析参数
 	systemId := setting.CommonSetting.SystemId //r.FormValue("systemId")
-	userId := "0"                              // r.FormValue("user_id")
+	userId := r.FormValue("user_id")
 	if len(userId) == 0 {
 		_ = Render(conn, "", "", retcode.SYSTEM_ID_ERROR, "用户ID不能为空", []string{})
 		_ = conn.Close()

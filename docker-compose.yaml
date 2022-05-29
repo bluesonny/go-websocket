@@ -29,6 +29,18 @@ services:
       - "32380:2380"
     networks:
       - ws-net
+  etcd-manage:
+    build:
+      context: ./etcd-manage
+    #environment:
+     # - TZ=${TZ}
+    ports:
+      - "8080:8080"                    # 设置容器8080端口映射指定宿主机端口，用于宿主机访问可视化web
+    #depends_on:                                       # 依赖容器
+     # - ws_etcd1                                          # 在 etcd 服务容器启动后启动
+    networks:
+      - ws-net
+    restart: always
 
   webapp:
     container_name: go-websocket

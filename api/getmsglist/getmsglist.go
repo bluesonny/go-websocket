@@ -47,6 +47,9 @@ func (c *Controller) Run(w http.ResponseWriter, request *http.Request) {
 		api.Render(w, retcode.ONLINE_MESSAGE_CODE, "success", errMap)
 		return
 	}
+	if page == 0 {
+		page = 1
+	}
 	page = page + 1
 	if page > 20 {
 		errMap := map[string]string{"code": "1002", "msg": "无法请求更多数据"}
@@ -57,7 +60,7 @@ func (c *Controller) Run(w http.ResponseWriter, request *http.Request) {
 	inputData.LastId = lastId
 	inputData.Page = page
 
-	err = api.Validate(inputData)
+	//err = api.Validate(inputData)
 	if err != nil {
 		errMap := map[string]string{"code": "1002", "msg": err.Error()}
 		api.Render(w, retcode.ONLINE_MESSAGE_CODE, "success", errMap)

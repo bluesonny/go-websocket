@@ -1,7 +1,7 @@
 package retcode
 
 const (
-	SUCCESS = 0
+	SUCCESS = 200
 	FAIL    = -1
 
 	SYSTEM_ID_ERROR      = -101
