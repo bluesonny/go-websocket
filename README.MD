@@ -7,7 +7,7 @@
 
 ## 简介
 
-继续这个版本调整了一版
+基于这个版本调整了一下
 
 本系统基于Golang、ETCD、RPC实现分布式WebSocket微服务，也可以单机部署，单机部署不需要ETCD、RPC。分布式部署可以支持nginx负责均衡、水平扩容部署，程序之间使用RPC通信。
 
@@ -176,9 +176,3 @@ server {
 - [ ] 查询某个客户端是否在线
 
 
-
-## 沟通交流
-QQ群：1028314856
-
-<a target="_blank" href="//shang.qq.com/wpa/qunwpa?idkey=adbd35a10f2c25bd765a7830d17579f6e645634d22151b6d480d1b05026125e9">
-<img border="0" src="http://pub.idqqimg.com/wpa/images/group.png" alt="Golang websocket分布式交流群" title="Golang websocket分布式交流群"></a>
