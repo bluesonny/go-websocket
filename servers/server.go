@@ -30,6 +30,7 @@ type clientInfo struct {
 }
 
 type RetData struct {
+	ClientId   string      `json:"clientId"`
 	MessageId  string      `json:"messageId"`
 	SendUserId string      `json:"sendUserId"`
 	Code       int         `json:"code"`
@@ -110,8 +111,6 @@ func AddClientMap(clientSocket *Client) {
 
 //添加客户端到分组
 func AddClient2Group(systemId string, groupName string, clientId string, userId string, extend string) {
-
-	//如果是集群则用redis共享数据
 
 	if util.IsCluster() {
 		//判断key是否存在
@@ -229,7 +228,7 @@ func WriteMessage() {
 			//"data":       clientInfo.Data,
 		}).Info("发送到本机")
 		if conn, err := Manager.GetByClientId(clientInfo.ClientId); err == nil && conn != nil {
-			if err := Render(conn.Socket, clientInfo.MessageId, clientInfo.SendUserId, clientInfo.Code, clientInfo.Msg, clientInfo.Data); err != nil {
+			if err := Render(conn.Socket, clientInfo.ClientId, clientInfo.MessageId, clientInfo.SendUserId, clientInfo.Code, clientInfo.Msg, clientInfo.Data); err != nil {
 				Manager.DisConnect <- conn
 				log.WithFields(log.Fields{
 					"host":     setting.GlobalSetting.LocalHost,
@@ -242,9 +241,10 @@ func WriteMessage() {
 	}
 }
 
-func Render(conn *websocket.Conn, messageId string, sendUserId string, code int, message string, data interface{}) error {
+func Render(conn *websocket.Conn, clientId string, messageId string, sendUserId string, code int, message string, data interface{}) error {
 	return conn.WriteJSON(RetData{
 		Code:       code,
+		ClientId:   clientId,
 		MessageId:  messageId,
 		SendUserId: sendUserId,
 		Msg:        message,
@@ -282,7 +282,7 @@ func RedisSend() {
 	}
 	for msg := range redisSubscribe.Channel() {
 		msg.Payload = strings.Trim(msg.Payload, "\"")
-		log.Printf("redis读取数据：channel=%s\n", msg.Channel)
+		log.Printf("redis读取数据：channel=%s", msg.Channel)
 		if strings.TrimSpace(msg.Payload) == "" {
 			log.Printf("空消息...")
 			continue

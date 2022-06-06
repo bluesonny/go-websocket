@@ -44,7 +44,7 @@ func (c *Controller) Run(w http.ResponseWriter, r *http.Request) {
 	systemId := setting.CommonSetting.SystemId //r.FormValue("systemId")
 	userId := r.FormValue("user_id")
 	if len(userId) == 0 {
-		_ = Render(conn, "", "", retcode.SYSTEM_ID_ERROR, "用户ID不能为空", []string{})
+		_ = Render(conn, "", "", "", retcode.SYSTEM_ID_ERROR, "用户ID不能为空", []string{})
 		_ = conn.Close()
 		return
 	}
