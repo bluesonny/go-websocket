@@ -66,7 +66,7 @@ func (c *Controller) Run(w http.ResponseWriter, request *http.Request) {
 		api.Render(w, retcode.ONLINE_MESSAGE_CODE, "success", errMap)
 		return
 	}
-	ret := servers.GetList(inputData.ChatroomId, inputData.LastId, page)
+	ret := servers.GetList(inputData.ChatroomId, "", inputData.LastId, page)
 	api.Render(w, retcode.SUCCESS, "success", ret)
 	return
 }

@@ -36,13 +36,13 @@ type UserType struct {
 	Avatar   string `json:"avatar"`
 }
 type Subs struct {
-	ChatroomId  int `json:"chatroom_id"`
-	LastId      int `json:"last_id"`
-	Page        int `json:"page"`
-	TopId       int `json:"top_id"`
-	OnLine      int `json:"on_line"`
-	PushMsgType int `json:"push_msg_type"`
-	//TimeMsg     string `json:"time_msg"`
+	ChatroomId  int    `json:"chatroom_id"`
+	LastId      int    `json:"last_id"`
+	Page        int    `json:"page"`
+	TopId       int    `json:"top_id"`
+	OnLine      int    `json:"on_line"`
+	PushMsgType int    `json:"push_msg_type"`
+	ClientId    string `json:"client_id"`
 }
 type Lists struct {
 	List interface{} `json:"list"`

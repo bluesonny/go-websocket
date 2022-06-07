@@ -39,7 +39,7 @@ type RetData struct {
 }
 
 // 心跳间隔
-var heartbeatInterval = 25 * time.Second
+var heartbeatInterval = 60 * time.Second
 
 func init() {
 	ToClientChan = make(chan clientInfo, 1000)
@@ -186,6 +186,26 @@ func GetOnlineList(systemId *string, groupName *string) map[string]interface{} {
 	}
 }
 
+//获取分组列表
+func CheckOnline(groupName *string, clientId string) bool {
+
+	if util.IsCluster() {
+		//发送到系统广播
+		//clientList = GetOnlineListBroadcast(systemId, groupName)
+	} else {
+		//如果是单机服务，则只发送到本机
+		retList := Manager.GetGroupClientList(util.GenGroupKey(setting.CommonSetting.SystemId, *groupName))
+		//log.Printf("所有用户%#v", retList)
+		for _, item := range retList {
+			if item == clientId {
+				return true
+			}
+		}
+
+	}
+	return false
+}
+
 //通过本服务器发送信息
 func SendMessage2LocalClient(messageId, clientId string, sendUserId string, code int, msg string, data interface{}) {
 	log.WithFields(log.Fields{
@@ -261,7 +281,7 @@ func PingTimer() {
 			<-ticker.C
 			//发送心跳
 			for clientId, conn := range Manager.AllClient() {
-				if err := conn.Socket.WriteControl(websocket.PingMessage, []byte{}, time.Now().Add(time.Second)); err != nil {
+				if err := conn.Socket.WriteControl(websocket.PingMessage, []byte("heartbeat"), time.Now().Add(time.Second)); err != nil {
 					Manager.DisConnect <- conn
 					log.Printf("发送心跳失败: %s 总连接数：%d", clientId, Manager.Count())
 				} else {
@@ -414,11 +434,11 @@ func RedisSend() {
 }
 
 func SendListMsgToClient(manager *ClientManager, clientId string, userId string, groupName string) {
-	data := GetList(groupName, 0, 1)
+	data := GetList(groupName, clientId, 0, 1)
 	data.Sub.OnLine = manager.Count()
 	SendMessage2Client(clientId, userId, retcode.ONLINE_MESSAGE_CODE, "客户端上线", data)
 }
-func GetList(groupName string, lastId int, page int) (data Lists) {
+func GetList(groupName string, clientId string, lastId int, page int) (data Lists) {
 	msg := Msg{}
 	list, _ := msg.GetList(lastId)
 	timeUnix := time.Now().Unix()
@@ -482,10 +502,10 @@ func GetList(groupName string, lastId int, page int) (data Lists) {
 	//	onLine, _ := strconv.Atoi(on["count"])
 
 	ChatroomId, err := strconv.Atoi(groupName)
-	subs := Subs{ChatroomId, 0, page, tid, onLine, 2}
+	subs := Subs{ChatroomId, 0, page, tid, onLine, 2, clientId}
 	if num > 0 {
 		tmp := list[num-1]
-		subs = Subs{ChatroomId, tmp.Id, page, tid, onLine, 2}
+		subs = Subs{ChatroomId, tmp.Id, page, tid, onLine, 2, clientId}
 	} else {
 		data.List = ListNull{}
 	}

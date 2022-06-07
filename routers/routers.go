@@ -2,6 +2,7 @@ package routers
 
 import (
 	"github.com/woodylan/go-websocket/api/bind2group"
+	"github.com/woodylan/go-websocket/api/checkonline"
 	"github.com/woodylan/go-websocket/api/closeclient"
 	"github.com/woodylan/go-websocket/api/getmsglist"
 	"github.com/woodylan/go-websocket/api/getonlinelist"
@@ -22,6 +23,7 @@ func Init() {
 	getGroupListHandler := &getonlinelist.Controller{}
 	closeClientHandler := &closeclient.Controller{}
 	getMsgListHandler := &getmsglist.Controller{}
+	checkOnlineHandler := &checkonline.Controller{}
 
 	http.HandleFunc("/api/register", registerHandler.Run)
 	http.HandleFunc("/api/send_to_client", AccessTokenMiddleware(sendToClientHandler.Run))
@@ -31,7 +33,7 @@ func Init() {
 	http.HandleFunc("/api/get_online_list", AccessTokenMiddleware(getGroupListHandler.Run))
 	http.HandleFunc("/api/close_client", AccessTokenMiddleware(closeClientHandler.Run))
 	http.HandleFunc("/api/get-msg-list", AccessTokenMiddleware(getMsgListHandler.Run))
-
+	http.HandleFunc("/api/check-on-line", AccessTokenMiddleware(checkOnlineHandler.Run))
 	servers.StartWebSocket()
 
 	go servers.WriteMessage()
