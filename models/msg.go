@@ -66,6 +66,7 @@ func (msg *Msg) GetList(lastId int) (msgs []Msg, err error) {
 		sql = fmt.Sprintf("select id,chatroom_id,user_id,content,content_type,quote_id,create_time from chatroom_msg where  id<%d and is_delete=0 and report_count<2  order by id desc limit  %d", lastId, ViperConfig.App.Limit)
 	}
 	//rows, err := Db.Query("select id,chatroom_id,user_id,content,content_type,quote_id,create_time from chatroom_msg where  is_delete=0 and report_count<2  order by id desc limit 30")
+	log.Printf(sql)
 	rows, err := Db.Query(sql)
 	if err != nil {
 		return
@@ -88,7 +89,12 @@ func (msg *Msg) GetList(lastId int) (msgs []Msg, err error) {
 			ms.Content = ViperConfig.App.OssUrl + ms.Content
 		}
 		msgs = append(msgs, ms)
+
 	}
+	if len(msgs) == 0 {
+		return
+	}
+
 	ids := strings.Replace(strings.Trim(fmt.Sprint(ids_arr), "[]"), " ", ",", -1)
 	qids := strings.Replace(strings.Trim(fmt.Sprint(qids_arr), "[]"), " ", ",", -1)
 	uidsMap, _ := msg.GetUserByIds(ids)
@@ -155,7 +161,7 @@ func (msg *Msg) GetUser(uid int) (u UserType, err error) {
 func (msg *Msg) GetUserByIds(ids string) (myMap map[int]UserType, err error) {
 	//log.Printf("读取数uid")
 	sql := fmt.Sprintf("select id,nick_name,avatar from user where id in (%s)", ids)
-	//log.Printf(sql)
+	log.Printf(sql)
 	rows, err := Db.Query(sql)
 	defer rows.Close()
 	if err != nil {
@@ -180,7 +186,7 @@ func (msg *Msg) GetUserByIds(ids string) (myMap map[int]UserType, err error) {
 func (msg *Msg) GetQuoteByIds(ids string) (myMap map[int]QuoteType, err error) {
 	//log.Printf("读取数uid")
 	sql := fmt.Sprintf("select id,user_id,content,content_type from chatroom_msg where id in (%s) and is_delete=0", ids)
-	//log.Printf(sql)
+	log.Printf(sql)
 	rows, err := Db.Query(sql)
 	defer rows.Close()
 	if err != nil {
