@@ -35,8 +35,8 @@ func (c *Controller) Run(w http.ResponseWriter, request *http.Request) {
 	ClientId := request.PostFormValue("client_id")
 	log.Printf("参数值ChatroomId：%v，ClientId：%v", ChatroomId, ClientId)
 	if ClientId == "" || ChatroomId == "" {
-		errMap := map[string]string{"code": "1001", "msg": "参数不全"}
-		api.Render(w, retcode.ONLINE_MESSAGE_CODE, "success", errMap)
+		//errMap := map[string]string{"code": "1001", "msg": "参数不全"}
+		api.Render(w, retcode.ONLINE_MESSAGE_CODE, "success", false)
 		return
 	}
 	inputData.ClientId = ClientId

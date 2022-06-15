@@ -209,7 +209,10 @@ func (manager *ClientManager) AddClient2LocalGroup(groupName string, client *Cli
 	cCount := manager.Count()
 	if cCount > ViperConfig.App.OnLine {
 		//当前用户下线，发送消息
-		SendMessage2Client(client.ClientId, userId, retcode.OFFLINE_MESSAGE_CODE, "聊天室已达上线", "")
+
+		online := make(map[string]int)
+		online["online"] = cCount
+		SendMessage2Client(client.ClientId, userId, retcode.OFFLINE_MESSAGE_CODE, "聊天室已达上线", online)
 		time.Sleep(2 * time.Second)
 		CloseClient(client.ClientId, client.SystemId)
 		return
