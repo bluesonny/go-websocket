@@ -1,12 +1,15 @@
 package servers
 
 import (
+	"context"
 	"errors"
 	log "github.com/sirupsen/logrus"
 	. "github.com/woodylan/go-websocket/config"
 	"github.com/woodylan/go-websocket/define/retcode"
+	. "github.com/woodylan/go-websocket/models"
 	"github.com/woodylan/go-websocket/pkg/setting"
 	"github.com/woodylan/go-websocket/tools/util"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -167,7 +170,20 @@ func (manager *ClientManager) SendMessage2LocalGroup(systemId, messageId, sendUs
 			for _, clientId := range clientIds {
 				if _, err := Manager.GetByClientId(clientId); err == nil {
 					//添加到本地
-					SendMessage2LocalClient(messageId, clientId, sendUserId, code, msg, data)
+					op, _ := data.(MsgType)
+					op.Sub.ClientId = clientId
+
+					var ctx = context.Background()
+					last_id, err := RedisClient.HGet(ctx, clientId, "last_id").Result()
+					page, err := RedisClient.HGet(ctx, clientId, "page").Result()
+
+					if err != nil {
+						log.Printf("读取缓存有问题？%v,%s,--%s", err, last_id, page)
+					} else {
+						op.Sub.LastId, err = strconv.Atoi(last_id)
+						op.Sub.Page, err = strconv.Atoi(page)
+					}
+					SendMessage2LocalClient(messageId, clientId, sendUserId, code, msg, op)
 				} else {
 					//删除分组
 					manager.delGroupClient(util.GenGroupKey(systemId, groupName), clientId)

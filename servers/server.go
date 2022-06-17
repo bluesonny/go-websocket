@@ -317,114 +317,6 @@ func RedisSend() {
 		onLine := Manager.Count()
 		data.Sub.OnLine = onLine
 		log.Printf("解析结果%v", data)
-
-		//id, err := strconv.Atoi(msg.Payload)
-		//if err != nil {
-		//	log.Printf(" 消息 id 出错 %v\n", err)
-		//	continue
-		//log.Fatal(err)
-		//}
-
-		/*
-				//获取数据
-
-			ms := Msg{}
-			ms, err = ms.GetMsg(id)
-			if err != nil {
-				log.Printf(" 数据库消息数据出错 %v\n", err)
-				continue
-			}
-			if ms.Id > 0 {
-				if ms.ContentType > 0 {
-					ms.Content = ViperConfig.App.OssUrl + ms.Content
-				}
-				u, _ := ms.GetUser(ms.UserId)
-				u.Avatar = ViperConfig.App.OssUrl + u.Avatar
-				ms.User = u
-				if ms.QuoteId > 0 {
-					msq, _ := ms.GetQuote(ms.QuoteId)
-					if msq.ContentType > 0 {
-						msq.Content = ViperConfig.App.OssUrl + msq.Content
-					}
-					uq, _ := ms.GetUser(msq.UserId)
-					uq.Avatar = ViperConfig.App.OssUrl + uq.Avatar
-					msq.User = uq
-					ms.Quote = msq
-
-				} else {
-					ms.Quote = QuoteNull{}
-				}
-
-			} else {
-				log.Printf(" 数据库消息数据格式出错--- %v\n", ms)
-				continue
-			}
-			tid, err := ms.GetTop()
-			if err != nil {
-				log.Printf(" 消息 id 出错 %v\n", err)
-				//log.Fatal(err)
-			}
-			//处理时间
-			t1, _ := time.Parse(time.RFC3339, ms.CreateTime)
-			ms.CreateTime = t1.Format("2006-01-02 15:04:05")
-
-			ms.TimeMsg = TimeMsgNUll{}
-			SendUserId := strconv.Itoa(ms.UserId)
-			GroupName := strconv.Itoa(ms.ChatroomId)
-			data := MsgType{}
-
-			onLine := Manager.Count()
-			//时间消息处理
-			key := "time_key"
-			timeUnix := time.Now().Unix()
-			timeMsg := ""
-			time_msg_ret, err := RedisClient.HMGet(ctx, key, "count", "time").Result()
-
-			shanghaiZone, _ := time.LoadLocation("Asia/Shanghai")
-			timeU, err := time.ParseInLocation("2006-01-02 15:04:05", ms.CreateTime, shanghaiZone)
-			if err != nil {
-				log.Printf("timeU 时间处理出错%v", err)
-			}
-
-			if err != nil {
-				// 如果返回的错误是key不存在
-				if errors.Is(err, redis.Nil) {
-					log.Printf("redis key 不存在%v\n", err)
-				}
-				// 出其他错了
-				log.Printf("时间消息缓存出错%v\n", err)
-			} else {
-				log.Printf("取回的值%v\n", time_msg_ret)
-
-				if time_msg_ret[0] == nil {
-					RedisClient.HIncrBy(ctx, key, "count", 1)
-					RedisClient.HSet(ctx, key, "time", timeUnix)
-				} else {
-					count, _ := strconv.Atoi(time_msg_ret[0].(string))
-					times, _ := strconv.ParseInt(time_msg_ret[1].(string), 10, 64)
-					if count <= 10 && (timeUnix-times) >= 180 {
-						timeMsg = util.GetChatTimeStr(timeU.Unix())
-						ms.TimeMsg = TimeMsg{timeMsg}
-						RedisClient.HDel(ctx, key, "count", "time").Result()
-
-						log.Println("时间消息---时间到了...")
-					} else if count >= 10 && (timeUnix-times) < 180 {
-						timeMsg = util.GetChatTimeStr(timeU.Unix())
-						ms.TimeMsg = TimeMsg{timeMsg}
-						RedisClient.HDel(ctx, key, "count", "time").Result()
-						log.Println("时间消息---条数到了...")
-					} else {
-						RedisClient.HIncrBy(ctx, key, "count", 1)
-
-					}
-				}
-			}
-
-			subs := Subs{ms.ChatroomId, 0, 0, tid, onLine, 1}
-			data.Msg = ms
-			data.Sub = subs
-
-		*/
 		SendUserId := strconv.Itoa(data.Msg.UserId)
 		GroupName := strconv.Itoa(data.Msg.ChatroomId)
 		SendMessage2Group(setting.CommonSetting.SystemId, SendUserId, GroupName, 200, "success", data)
@@ -436,6 +328,7 @@ func RedisSend() {
 func SendListMsgToClient(manager *ClientManager, clientId string, userId string, groupName string) {
 	data := GetList(groupName, clientId, 0, 1)
 	data.Sub.OnLine = manager.Count()
+
 	SendMessage2Client(clientId, userId, retcode.ONLINE_MESSAGE_CODE, "客户端上线", data)
 }
 func GetList(groupName string, clientId string, lastId int, page int) (data Lists) {
@@ -504,7 +397,9 @@ func GetList(groupName string, clientId string, lastId int, page int) (data List
 	ChatroomId, err := strconv.Atoi(groupName)
 	subs := Subs{ChatroomId, 0, page, tid, onLine, 2, clientId}
 	if num > 0 {
+		var ctx = context.Background()
 		tmp := list[num-1]
+		RedisClient.HSet(ctx, clientId, "last_id", tmp.Id, "page", page)
 		subs = Subs{ChatroomId, tmp.Id, page, tid, onLine, 2, clientId}
 	} else {
 		data.List = ListNull{}
