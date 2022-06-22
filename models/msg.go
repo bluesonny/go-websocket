@@ -13,6 +13,7 @@ type Msg struct {
 	UserId      int         `json:"user_id"`
 	Content     string      `json:"content"`
 	ContentType int         `json:"content_type"`
+	VideoCover  string      `json:"video_cover"`
 	QuoteId     int         `json:"quote_id"`
 	CreateTime  string      `json:"create_time"`
 	User        UserType    `json:"user"`
@@ -28,6 +29,7 @@ type QuoteType struct {
 	UserId      int      `json:"user_id"`
 	Content     string   `json:"content"`
 	ContentType int      `json:"content_type"`
+	VideoCover  string   `json:"video_cover"`
 	User        UserType `json:"user"`
 }
 type UserType struct {
@@ -36,13 +38,14 @@ type UserType struct {
 	Avatar   string `json:"avatar"`
 }
 type Subs struct {
-	ChatroomId  int    `json:"chatroom_id"`
-	LastId      int    `json:"last_id"`
-	Page        int    `json:"page"`
-	TopId       int    `json:"top_id"`
-	OnLine      int    `json:"on_line"`
-	PushMsgType int    `json:"push_msg_type"`
-	ClientId    string `json:"client_id"`
+	ChatroomId   int    `json:"chatroom_id"`
+	LastId       int    `json:"last_id"`
+	Page         int    `json:"page"`
+	TopId        int    `json:"top_id"`
+	OnLine       int    `json:"on_line"`
+	PushMsgType  int    `json:"push_msg_type"`
+	ClientId     string `json:"client_id"`
+	IsShowOnline int    `json:"is_show_online"`
 }
 type Lists struct {
 	List interface{} `json:"list"`
@@ -61,9 +64,9 @@ type TimeMsgNUll struct {
 }
 
 func (msg *Msg) GetList(lastId int) (msgs []Msg, err error) {
-	sql := fmt.Sprintf("select id,chatroom_id,user_id,content,content_type,quote_id,create_time from chatroom_msg where  is_delete=0 and report_count<2  order by id desc limit %d", ViperConfig.App.Limit)
+	sql := fmt.Sprintf("select id,chatroom_id,user_id,content,content_type,video_cover,quote_id,create_time from chatroom_msg where  is_delete=0 and report_count<2  order by id desc limit %d", ViperConfig.App.Limit)
 	if lastId > 0 {
-		sql = fmt.Sprintf("select id,chatroom_id,user_id,content,content_type,quote_id,create_time from chatroom_msg where  id<%d and is_delete=0 and report_count<2  order by id desc limit  %d", lastId, ViperConfig.App.Limit)
+		sql = fmt.Sprintf("select id,chatroom_id,user_id,content,content_type,video_cover,quote_id,create_time from chatroom_msg where  id<%d and is_delete=0 and report_count<2  order by id desc limit  %d", lastId, ViperConfig.App.Limit)
 	}
 	//rows, err := Db.Query("select id,chatroom_id,user_id,content,content_type,quote_id,create_time from chatroom_msg where  is_delete=0 and report_count<2  order by id desc limit 30")
 	log.Printf(sql)
@@ -77,7 +80,7 @@ func (msg *Msg) GetList(lastId int) (msgs []Msg, err error) {
 	defer rows.Close()
 	for rows.Next() {
 		ms := Msg{}
-		if err = rows.Scan(&ms.Id, &ms.ChatroomId, &ms.UserId, &ms.Content, &ms.ContentType, &ms.QuoteId, &ms.CreateTime); err != nil {
+		if err = rows.Scan(&ms.Id, &ms.ChatroomId, &ms.UserId, &ms.Content, &ms.ContentType, &ms.VideoCover, &ms.QuoteId, &ms.CreateTime); err != nil {
 			return
 		}
 		ids_arr = append(ids_arr, ms.UserId)
@@ -88,6 +91,10 @@ func (msg *Msg) GetList(lastId int) (msgs []Msg, err error) {
 		if ms.ContentType > 0 {
 			ms.Content = ViperConfig.App.OssUrl + ms.Content
 		}
+		if ms.ContentType == 3 && ms.VideoCover != "" {
+			ms.VideoCover = ViperConfig.App.OssUrl + ms.VideoCover
+		}
+
 		msgs = append(msgs, ms)
 
 	}
@@ -138,16 +145,7 @@ func (msg *Msg) GetTop() (id int, err error) {
 	}
 	return
 }
-func (msg *Msg) GetQuote(id int) (ms QuoteType, err error) {
-	//log.Printf("读取引用数据")
-	stout, err := Db.Prepare("select id,user_id,content,content_type from chatroom_msg where id=? and is_delete=0 ")
-	if err != nil {
-		return
-	}
-	defer stout.Close()
-	err = stout.QueryRow(id).Scan(&ms.Id, &ms.UserId, &ms.Content, &ms.ContentType)
-	return
-}
+
 func (msg *Msg) GetUser(uid int) (u UserType, err error) {
 	//log.Printf("读取数uid")
 	stout, err := Db.Prepare("select id,nick_name,avatar from user where id=? ")
@@ -185,7 +183,7 @@ func (msg *Msg) GetUserByIds(ids string) (myMap map[int]UserType, err error) {
 }
 func (msg *Msg) GetQuoteByIds(ids string) (myMap map[int]QuoteType, err error) {
 	//log.Printf("读取数uid")
-	sql := fmt.Sprintf("select id,user_id,content,content_type from chatroom_msg where id in (%s) and is_delete=0", ids)
+	sql := fmt.Sprintf("select id,user_id,content,content_type,video_cover from chatroom_msg where id in (%s) and is_delete=0", ids)
 	log.Printf(sql)
 	rows, err := Db.Query(sql)
 	defer rows.Close()
@@ -196,7 +194,7 @@ func (msg *Msg) GetQuoteByIds(ids string) (myMap map[int]QuoteType, err error) {
 	var u []QuoteType
 	for rows.Next() {
 		ms := QuoteType{}
-		if err = rows.Scan(&ms.Id, &ms.UserId, &ms.Content, &ms.ContentType); err != nil {
+		if err = rows.Scan(&ms.Id, &ms.UserId, &ms.Content, &ms.ContentType, &ms.VideoCover); err != nil {
 			return
 		}
 		if ms.ContentType > 0 {

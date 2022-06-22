@@ -316,6 +316,7 @@ func RedisSend() {
 		}
 		onLine := Manager.Count()
 		data.Sub.OnLine = onLine
+		data.Sub.IsShowOnline = ViperConfig.App.IsShowOnLine
 		log.Printf("解析结果%v", data)
 		SendUserId := strconv.Itoa(data.Msg.UserId)
 		GroupName := strconv.Itoa(data.Msg.ChatroomId)
@@ -395,12 +396,12 @@ func GetList(groupName string, clientId string, lastId int, page int) (data List
 	//	onLine, _ := strconv.Atoi(on["count"])
 
 	ChatroomId, err := strconv.Atoi(groupName)
-	subs := Subs{ChatroomId, 0, page, tid, onLine, 2, clientId}
+	subs := Subs{ChatroomId, 0, page, tid, onLine, 2, clientId, ViperConfig.App.IsShowOnLine}
 	if num > 0 {
 		var ctx = context.Background()
 		tmp := list[num-1]
 		RedisClient.HSet(ctx, clientId, "last_id", tmp.Id, "page", page)
-		subs = Subs{ChatroomId, tmp.Id, page, tid, onLine, 2, clientId}
+		subs = Subs{ChatroomId, tmp.Id, page, tid, onLine, 2, clientId, ViperConfig.App.IsShowOnLine}
 	} else {
 		data.List = ListNull{}
 	}

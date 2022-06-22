@@ -228,6 +228,7 @@ func (manager *ClientManager) AddClient2LocalGroup(groupName string, client *Cli
 
 		online := make(map[string]int)
 		online["online"] = cCount
+		online["is_show_online"] = ViperConfig.App.IsShowOnLine
 		SendMessage2Client(client.ClientId, userId, retcode.OFFLINE_MESSAGE_CODE, "聊天室已达上线", online)
 		time.Sleep(2 * time.Second)
 		CloseClient(client.ClientId, client.SystemId)
