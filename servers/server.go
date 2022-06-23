@@ -303,12 +303,24 @@ func RedisSend() {
 	}
 	for msg := range redisSubscribe.Channel() {
 		msg.Payload = strings.Trim(msg.Payload, "\"")
-		log.Printf("redis读取数据：channel=%s", msg.Channel)
+		log.Printf("redis读取数据：%s", msg.Payload)
 		if strings.TrimSpace(msg.Payload) == "" {
 			log.Printf("空消息...")
 			continue
 		}
 		str := []byte(msg.Payload)
+		if strings.Contains(msg.Payload, "bullet_chat") {
+			bullet := BulletChat{}
+			GroupName := setting.CommonSetting.BulletChat
+			err := json.Unmarshal(str, &bullet)
+			if err != nil {
+				log.Printf("弹幕消息解析出错...%v", err)
+				continue
+			}
+			SendMessage2Group(setting.CommonSetting.SystemId, "", GroupName, 200, "success", bullet)
+			continue
+		}
+
 		data := MsgType{}
 		err := json.Unmarshal(str, &data)
 		if err != nil {
