@@ -125,6 +125,14 @@ func (manager *ClientManager) Count() int {
 	return len(manager.ClientIdMap)
 }
 
+//分组客户端量
+func (manager *ClientManager) GroupCount(groupKey string) int {
+	manager.GroupLock.RLock()
+	defer manager.GroupLock.RUnlock()
+	return len(manager.Groups[groupKey])
+
+}
+
 // 删除客户端
 func (manager *ClientManager) DelClient(client *Client) {
 	manager.delClientIdMap(client.ClientId)
@@ -222,14 +230,14 @@ func (manager *ClientManager) AddClient2LocalGroup(groupName string, client *Cli
 	// 为属性添加分组信息
 	groupKey := util.GenGroupKey(client.SystemId, groupName)
 	//检查是超群组上限
-	cCount := manager.Count()
+	cCount := manager.GroupCount(groupKey)
 	if cCount > ViperConfig.App.OnLine {
 		//当前用户下线，发送消息
 
 		online := make(map[string]int)
 		online["online"] = cCount
 		online["is_show_online"] = ViperConfig.App.IsShowOnLine
-		SendMessage2Client(client.ClientId, userId, retcode.OFFLINE_MESSAGE_CODE, "聊天室已达上线", online)
+		SendMessage2Client(client.ClientId, userId, retcode.OFFLINE_MESSAGE_CODE, "已达上线", online)
 		time.Sleep(2 * time.Second)
 		CloseClient(client.ClientId, client.SystemId)
 		return
@@ -237,7 +245,7 @@ func (manager *ClientManager) AddClient2LocalGroup(groupName string, client *Cli
 	manager.addClient2Group(groupKey, client)
 
 	client.GroupList = append(client.GroupList, groupName)
-	//log.Printf("群组列表client.GroupList%v\n", client.GroupList)
+	log.Printf("群组列表client.GroupList%v\n", client.GroupList)
 	//mJson, _ := json.Marshal(map[string]string{
 	//	"clientId": client.ClientId,
 	//	"userId":   client.UserId,
@@ -247,9 +255,16 @@ func (manager *ClientManager) AddClient2LocalGroup(groupName string, client *Cli
 	//sendUserId := ""
 
 	//发送系统通知
-	//SendMessage2Group(client.SystemId, sendUserId, groupName, retcode.ONLINE_MESSAGE_CODE, "", &data)
-	//发送首页数据
-	SendListMsgToClient(manager, client.ClientId, userId, groupName)
+	if extend == "bullet_chat" {
+		//SendMessage2Group(client.SystemId, sendUserId, groupName, retcode.ONLINE_MESSAGE_CODE, "", &data)
+		retData := make(map[string]string)
+		retData["chatroom_id"] = groupName
+		retData["client_id"] = client.ClientId
+		SendMessage2Client(client.ClientId, userId, retcode.ONLINE_MESSAGE_CODE, "客户端上线", retData)
+	} else {
+		//发送首页数据
+		SendListMsgToClient(client.ClientId, userId, groupName)
+	}
 }
 
 // 添加到本地分组

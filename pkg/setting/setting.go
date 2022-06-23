@@ -15,6 +15,7 @@ type commonConf struct {
 	CryptoKey  string
 	SystemId   string
 	ChatroomId string
+	BulletChat string
 }
 
 var CommonSetting = &commonConf{}
@@ -61,6 +62,7 @@ func Default() {
 		CryptoKey:  "Adba723b7fe06819",
 		SystemId:   "99",
 		ChatroomId: "1",
+		BulletChat: "",
 	}
 
 	GlobalSetting = &global{

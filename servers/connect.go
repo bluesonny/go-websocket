@@ -43,10 +43,14 @@ func (c *Controller) Run(w http.ResponseWriter, r *http.Request) {
 	//解析参数
 	systemId := setting.CommonSetting.SystemId //r.FormValue("systemId")
 	userId := r.FormValue("user_id")
+	chat_type := r.FormValue("chat_type")
 	if len(userId) == 0 {
 		_ = Render(conn, "", "", "", retcode.SYSTEM_ID_ERROR, "用户ID不能为空", []string{})
 		_ = conn.Close()
 		return
+	}
+	if len(chat_type) == 0 {
+		chat_type = "chat" //bullet_chat  弹幕
 	}
 
 	clientId := util.GenClientId()
@@ -67,10 +71,15 @@ func (c *Controller) Run(w http.ResponseWriter, r *http.Request) {
 	//Manager.Connect <- clientSocket
 	AddClientMap(clientSocket)
 	//连接成功加入群组
-	chatroomId := r.FormValue("chatroomId")
-	if len(chatroomId) == 0 {
-		chatroomId = setting.CommonSetting.ChatroomId //默认群组
+	//chatroomId := r.FormValue("chatroomId")
+	//if len(chatroomId) == 0 {
+	chatroomId := setting.CommonSetting.ChatroomId //默认群组
+	log.Println("获取默认群组...")
+	//}
+	if chat_type == "bullet_chat" {
+		chatroomId = setting.CommonSetting.BulletChat //默认群组
+		log.Println("---自动加入默认弹幕群组---")
 	}
-	log.Println("自动加入默认群组")
-	AddClient2Group(systemId, chatroomId, clientId, userId, "")
+
+	AddClient2Group(systemId, chatroomId, clientId, userId, chat_type)
 }

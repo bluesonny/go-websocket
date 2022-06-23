@@ -177,6 +177,7 @@ func GetOnlineList(systemId *string, groupName *string) map[string]interface{} {
 	} else {
 		//如果是单机服务，则只发送到本机
 		retList := Manager.GetGroupClientList(util.GenGroupKey(*systemId, *groupName))
+		//log.Printf("util.GenGroupKey%s", util.GenGroupKey(*systemId, *groupName))
 		clientList = append(clientList, retList...)
 	}
 
@@ -326,9 +327,9 @@ func RedisSend() {
 
 }
 
-func SendListMsgToClient(manager *ClientManager, clientId string, userId string, groupName string) {
+func SendListMsgToClient(clientId string, userId string, groupName string) {
 	data := GetList(groupName, clientId, 0, 1)
-	data.Sub.OnLine = manager.Count()
+	//data.Sub.OnLine = manager.Count()
 
 	SendMessage2Client(clientId, userId, retcode.ONLINE_MESSAGE_CODE, "客户端上线", data)
 }
@@ -391,9 +392,11 @@ func GetList(groupName string, clientId string, lastId int, page int) (data List
 	}
 	//manager := ClientManager{}
 	//var manager = NewClientManager()
-	onLine := Manager.Count()
+	//onLine := Manager.Count()
+	retList := Manager.GetGroupClientList(util.GenGroupKey(setting.CommonSetting.SystemId, groupName))
 	//on := GetOnlineList(&setting.CommonSetting.SystemId, &groupName)
-	//	onLine, _ := strconv.Atoi(on["count"])
+	log.Printf("返回本组列表%#v", retList)
+	onLine := len(retList)
 
 	ChatroomId, err := strconv.Atoi(groupName)
 	subs := Subs{ChatroomId, 0, page, tid, onLine, 2, clientId, ViperConfig.App.IsShowOnLine}
