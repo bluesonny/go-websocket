@@ -26,6 +26,7 @@ type BulletChat struct {
 	Content    string `json:"content"`
 	ChatType   string `json:"chat_type"`
 	ClientId   string `json:"client_id"`
+	UserId     int    `json:"user_id"`
 }
 
 type QuoteNull struct {
