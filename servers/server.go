@@ -302,7 +302,7 @@ func RedisSend() {
 		log.Fatal(err)
 	}
 	for msg := range redisSubscribe.Channel() {
-		msg.Payload = strings.Trim(msg.Payload, "\"")
+		//msg.Payload = strings.Trim(msg.Payload, "\"")
 		log.Printf("redis读取数据：%s", msg.Payload)
 		if strings.TrimSpace(msg.Payload) == "" {
 			log.Printf("空消息...")
@@ -327,12 +327,14 @@ func RedisSend() {
 			log.Printf("消息解析出错...%v", err)
 			continue
 		}
-		onLine := Manager.Count()
-		data.Sub.OnLine = onLine
+
 		data.Sub.IsShowOnline = ViperConfig.App.IsShowOnLine
 		log.Printf("解析结果%v", data)
 		SendUserId := strconv.Itoa(data.Msg.UserId)
 		GroupName := strconv.Itoa(data.Msg.ChatroomId)
+		groupKey := util.GenGroupKey(setting.CommonSetting.SystemId, GroupName)
+		onLine := Manager.GroupCount(groupKey)
+		data.Sub.OnLine = onLine
 		SendMessage2Group(setting.CommonSetting.SystemId, SendUserId, GroupName, 200, "success", data)
 
 	}
@@ -341,8 +343,6 @@ func RedisSend() {
 
 func SendListMsgToClient(clientId string, userId string, groupName string) {
 	data := GetList(groupName, clientId, 0, 1)
-	//data.Sub.OnLine = manager.Count()
-
 	SendMessage2Client(clientId, userId, retcode.ONLINE_MESSAGE_CODE, "客户端上线", data)
 }
 func GetList(groupName string, clientId string, lastId int, page int) (data Lists) {
@@ -393,23 +393,17 @@ func GetList(groupName string, clientId string, lastId int, page int) (data List
 		}
 
 	}
-	//data := Lists{}
 	num := len(list)
-
 	data.List = list
 	tid, err := msg.GetTop()
 	if err != nil {
 		log.Printf(" 消息 id 出错 %v\n", err)
 		//log.Fatal(err)
 	}
-	//manager := ClientManager{}
-	//var manager = NewClientManager()
-	//onLine := Manager.Count()
-	retList := Manager.GetGroupClientList(util.GenGroupKey(setting.CommonSetting.SystemId, groupName))
-	//on := GetOnlineList(&setting.CommonSetting.SystemId, &groupName)
-	log.Printf("返回本组列表%#v", retList)
-	onLine := len(retList)
 
+	// 为属性添加分组信息
+	groupKey := util.GenGroupKey(setting.CommonSetting.SystemId, groupName)
+	onLine := Manager.GroupCount(groupKey)
 	ChatroomId, err := strconv.Atoi(groupName)
 	subs := Subs{ChatroomId, 0, page, tid, onLine, 2, clientId, ViperConfig.App.IsShowOnLine}
 	if num > 0 {

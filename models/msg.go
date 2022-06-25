@@ -26,12 +26,6 @@ type BulletChat struct {
 	Content    string `json:"content"`
 	ChatType   string `json:"chat_type"`
 	ClientId   string `json:"client_id"`
-	//VideoCover string      `json:"video_cover"`
-	//QuoteId    int         `json:"quote_id"`
-	//CreateTime string      `json:"create_time"`
-	//User       UserType    `json:"user"`
-	//Quote      interface{} `json:"quote"`
-	//TimeMsg interface{} `json:"time_msg"`
 }
 
 type QuoteNull struct {
