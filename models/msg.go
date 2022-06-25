@@ -71,6 +71,23 @@ type TimeMsg struct {
 type TimeMsgNUll struct {
 }
 
+type Set struct {
+	OnLine       int `json:"chatroom_id"`
+	IsShowOnline int `json:"is_show_online"`
+}
+
+func (msg *Msg) GetSet() (s Set, err error) {
+	sql := fmt.Sprintf("select on_line,is_show_online from chat_set")
+	log.Printf(sql)
+	stout, err := Db.Prepare(sql)
+	if err != nil {
+		return
+	}
+	defer stout.Close()
+	err = stout.QueryRow().Scan(&s.OnLine, &s.IsShowOnline)
+	return
+}
+
 func (msg *Msg) GetList(lastId int) (msgs []Msg, err error) {
 	sql := fmt.Sprintf("select id,chatroom_id,user_id,content,content_type,video_cover,quote_id,create_time from chatroom_msg where  is_delete=0 and report_count<2  order by id desc limit %d", ViperConfig.App.Limit)
 	if lastId > 0 {

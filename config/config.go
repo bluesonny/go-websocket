@@ -8,15 +8,15 @@ import (
 )
 
 type App struct {
-	Address      string
-	Static       string
-	Log          string
-	Time         string
-	OssMaxKeys   int
-	OnLine       int
-	IsShowOnLine int
-	OssUrl       string
-	Limit        int
+	Address    string
+	Static     string
+	Log        string
+	Time       string
+	OssMaxKeys int
+	//OnLine     int
+	//IsShowOnLine int
+	OssUrl string
+	Limit  int
 }
 type Redis struct {
 	Address string

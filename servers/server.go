@@ -327,8 +327,8 @@ func RedisSend() {
 			log.Printf("消息解析出错...%v", err)
 			continue
 		}
-
-		data.Sub.IsShowOnline = ViperConfig.App.IsShowOnLine
+		set, _ := data.Msg.GetSet()
+		data.Sub.IsShowOnline = set.IsShowOnline
 		log.Printf("解析结果%v", data)
 		SendUserId := strconv.Itoa(data.Msg.UserId)
 		GroupName := strconv.Itoa(data.Msg.ChatroomId)
@@ -405,12 +405,14 @@ func GetList(groupName string, clientId string, lastId int, page int) (data List
 	groupKey := util.GenGroupKey(setting.CommonSetting.SystemId, groupName)
 	onLine := Manager.GroupCount(groupKey)
 	ChatroomId, err := strconv.Atoi(groupName)
-	subs := Subs{ChatroomId, 0, page, tid, onLine, 2, clientId, ViperConfig.App.IsShowOnLine}
+	//set  Set{}
+	set, _ := msg.GetSet()
+	subs := Subs{ChatroomId, 0, page, tid, onLine, 2, clientId, set.IsShowOnline}
 	if num > 0 {
 		var ctx = context.Background()
 		tmp := list[num-1]
 		RedisClient.HSet(ctx, clientId, "last_id", tmp.Id, "page", page)
-		subs = Subs{ChatroomId, tmp.Id, page, tid, onLine, 2, clientId, ViperConfig.App.IsShowOnLine}
+		subs = Subs{ChatroomId, tmp.Id, page, tid, onLine, 2, clientId, set.IsShowOnline}
 	} else {
 		data.List = ListNull{}
 	}

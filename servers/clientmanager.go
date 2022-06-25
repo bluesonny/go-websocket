@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	log "github.com/sirupsen/logrus"
-	. "github.com/woodylan/go-websocket/config"
 	"github.com/woodylan/go-websocket/define/retcode"
 	. "github.com/woodylan/go-websocket/models"
 	"github.com/woodylan/go-websocket/pkg/setting"
@@ -237,12 +236,15 @@ func (manager *ClientManager) AddClient2LocalGroup(groupName string, client *Cli
 	groupKey := util.GenGroupKey(client.SystemId, groupName)
 	//检查是超群组上限
 	cCount := manager.GroupCount(groupKey)
-	if cCount > ViperConfig.App.OnLine {
+	msg := Msg{}
+	set, _ := msg.GetSet()
+	log.Printf("配置%v,在线人数%d", set, cCount)
+	if cCount >= set.OnLine {
 		//当前用户下线，发送消息
 
 		online := make(map[string]int)
 		online["online"] = cCount
-		online["is_show_online"] = ViperConfig.App.IsShowOnLine
+		online["is_show_online"] = set.IsShowOnline
 		SendMessage2Client(client.ClientId, userId, retcode.OFFLINE_MESSAGE_CODE, "已达上线", online)
 		time.Sleep(2 * time.Second)
 		CloseClient(client.ClientId, client.SystemId)
