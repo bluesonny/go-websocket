@@ -15,7 +15,7 @@ func init() {
 	log.Println("config: DB")
 	var err error
 	driver := ViperConfig.Db.Driver
-	source := fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8&&parseTime=true", ViperConfig.Db.User, ViperConfig.Db.Password,
+	source := fmt.Sprintf("%s:%s@(%s)/%s?charset=utf8mb4&&parseTime=true", ViperConfig.Db.User, ViperConfig.Db.Password,
 		ViperConfig.Db.Address, ViperConfig.Db.Database)
 	Db, err = sql.Open(driver, source)
 	if err != nil {
