@@ -72,12 +72,12 @@ type TimeMsgNUll struct {
 }
 
 type Set struct {
-	OnLine       int `json:"chatroom_id"`
+	OnLine       int `json:"user_limit"`
 	IsShowOnline int `json:"is_show_online"`
 }
 
-func (msg *Msg) GetSet() (s Set, err error) {
-	sql := fmt.Sprintf("select on_line,is_show_online from chat_set")
+func (msg *Msg) GetSet(chatroom_id int) (s Set, err error) {
+	sql := fmt.Sprintf("select user_limit,is_show_online from chatroom where id=%d", chatroom_id)
 	log.Printf(sql)
 	stout, err := Db.Prepare(sql)
 	if err != nil {

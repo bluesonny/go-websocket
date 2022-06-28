@@ -327,7 +327,8 @@ func RedisSend() {
 			log.Printf("消息解析出错...%v", err)
 			continue
 		}
-		set, _ := data.Msg.GetSet()
+		set, _ := data.Msg.GetSet(data.Msg.ChatroomId)
+		log.Printf("配置%v", set)
 		data.Sub.IsShowOnline = set.IsShowOnline
 		log.Printf("解析结果%v", data)
 		SendUserId := strconv.Itoa(data.Msg.UserId)
@@ -406,7 +407,7 @@ func GetList(groupName string, clientId string, lastId int, page int) (data List
 	onLine := Manager.GroupCount(groupKey)
 	ChatroomId, err := strconv.Atoi(groupName)
 	//set  Set{}
-	set, _ := msg.GetSet()
+	set, _ := msg.GetSet(ChatroomId)
 	subs := Subs{ChatroomId, 0, page, tid, onLine, 2, clientId, set.IsShowOnline}
 	if num > 0 {
 		var ctx = context.Background()

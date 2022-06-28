@@ -237,7 +237,8 @@ func (manager *ClientManager) AddClient2LocalGroup(groupName string, client *Cli
 	//检查是超群组上限
 	cCount := manager.GroupCount(groupKey)
 	msg := Msg{}
-	set, _ := msg.GetSet()
+	cId, _ := strconv.Atoi(groupName)
+	set, _ := msg.GetSet(cId)
 	log.Printf("配置%v,在线人数%d", set, cCount)
 	if cCount >= set.OnLine {
 		//当前用户下线，发送消息
