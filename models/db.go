@@ -9,7 +9,6 @@ import (
 )
 
 var Db *sql.DB
-var Db2 *sql.DB
 
 func init() {
 	log.Println("config: DB")
