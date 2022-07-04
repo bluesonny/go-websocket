@@ -57,6 +57,7 @@ func (c *Controller) Run(w http.ResponseWriter, r *http.Request) {
 
 	clientSocket := NewClient(clientId, systemId, conn)
 
+	//clientid 加入系统map
 	Manager.AddClient2SystemClient(systemId, clientSocket)
 
 	//读取客户端消息--监听客户端
@@ -69,6 +70,7 @@ func (c *Controller) Run(w http.ResponseWriter, r *http.Request) {
 
 	// 用户连接事件
 	//Manager.Connect <- clientSocket
+	//加入 全局map
 	AddClientMap(clientSocket)
 	//连接成功加入群组
 	//chatroomId := r.FormValue("chatroomId")
@@ -80,6 +82,6 @@ func (c *Controller) Run(w http.ResponseWriter, r *http.Request) {
 		chatroomId = setting.CommonSetting.BulletChat //默认群组
 		log.Println("---自动加入默认弹幕群组---")
 	}
-
+	//加入 组的map
 	AddClient2Group(systemId, chatroomId, clientId, userId, chat_type)
 }

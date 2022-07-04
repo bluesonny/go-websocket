@@ -124,6 +124,7 @@ func AddClient2Group(systemId string, groupName string, clientId string, userId 
 			if client, err := Manager.GetByClientId(clientId); err == nil {
 				//添加到本地
 				Manager.AddClient2LocalGroup(groupName, client, userId, extend)
+
 			} else {
 				log.Error(err)
 			}
