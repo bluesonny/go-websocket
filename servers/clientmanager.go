@@ -112,9 +112,13 @@ func (manager *ClientManager) AddClient(client *Client) {
 // 获取所有的客户端
 func (manager *ClientManager) AllClient() map[string]*Client {
 	manager.ClientIdMapLock.RLock()
-	defer manager.ClientIdMapLock.RUnlock()
+	all := make(map[string]*Client, len(manager.ClientIdMap))
+	for k, v := range manager.ClientIdMap {
+		all[k] = v
+	}
 
-	return manager.ClientIdMap
+	manager.ClientIdMapLock.RUnlock()
+	return all
 }
 
 // 客户端数量
@@ -299,8 +303,13 @@ func (manager *ClientManager) delGroupClient(groupKey string, clientId string) {
 // 获取本地分组的成员
 func (manager *ClientManager) GetGroupClientList(groupKey string) []string {
 	manager.GroupLock.RLock()
-	defer manager.GroupLock.RUnlock()
-	return manager.Groups[groupKey]
+	//log.Printf("所有分组用户%#v", manager.Groups[groupKey])
+	cid := make([]string, 0, len(manager.Groups[groupKey]))
+	for _, v := range manager.Groups[groupKey] {
+		cid = append(cid, v)
+	}
+	manager.GroupLock.RUnlock()
+	return cid
 }
 
 // 添加到系统客户端列表
