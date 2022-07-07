@@ -182,8 +182,10 @@ func (manager *ClientManager) SendMessage2LocalGroup(systemId, messageId, sendUs
 				if _, err := Manager.GetByClientId(clientId); err == nil {
 
 					if groupName == setting.CommonSetting.BulletChat {
-						SendMessage2LocalClient(messageId, clientId, sendUserId, code, msg, data)
-						return
+						bt, _ := data.(BulletChat)
+						bt.ClientId = clientId
+						SendMessage2LocalClient(messageId, clientId, sendUserId, code, msg, bt)
+						continue
 					}
 
 					//添加到本地
