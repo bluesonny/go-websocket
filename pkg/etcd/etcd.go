@@ -2,7 +2,7 @@ package etcd
 
 import (
 	"context"
-	"github.com/coreos/etcd/clientv3"
+	"go.etcd.io/etcd/client/v3"
 	log "github.com/sirupsen/logrus"
 	"github.com/woodylan/go-websocket/pkg/setting"
 	"sync"
